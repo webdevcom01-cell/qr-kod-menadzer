@@ -1,8 +1,10 @@
 const express = require('express');
 const basicAuth = require('express-basic-auth');
+const QRCode = require('qrcode');
 
 const db = require('./db');
 const { createUniqueCode } = require('./lib/codegen');
+const { renderAdminPage } = require('./lib/render');
 
 if (!process.env.ADMIN_USER || !process.env.ADMIN_PASSWORD) {
   throw new Error(
@@ -46,28 +48,71 @@ const adminAuth = basicAuth({
 
 app.use('/admin', adminAuth);
 
+app.get('/admin', (req, res) => {
+  const records = db.getAllCodes();
+  res.type('html').send(renderAdminPage(records));
+});
+
+app.get('/admin/codes/:code/qr.png', async (req, res) => {
+  const record = db.getByCode(req.params.code);
+  if (!record) {
+    res.status(404).send('Not found');
+    return;
+  }
+  const redirectUrl = `${req.protocol}://${req.get('host')}/r/${req.params.code}`;
+  const png = await QRCode.toBuffer(redirectUrl, { type: 'png' });
+  res.type('png').send(png);
+});
+
+// HTML <form> submissions (no JS/fetch, per spec) post as
+// application/x-www-form-urlencoded and expect a 302 back to /admin so a
+// page refresh doesn't resubmit the form; JSON API callers get JSON back.
+function isFormSubmission(req) {
+  return Boolean(req.is('application/x-www-form-urlencoded'));
+}
+
 app.post('/admin/codes', (req, res) => {
   const targetUrl = req.body && req.body.target_url;
   if (!targetUrl || !isValidHttpUrl(targetUrl)) {
+    if (isFormSubmission(req)) {
+      res.status(400).send('target_url mora biti validan http:// ili https:// URL');
+      return;
+    }
     res.status(400).json({ error: 'target_url mora biti validan http:// ili https:// URL' });
     return;
   }
   const code = createUniqueCode(targetUrl);
+  if (isFormSubmission(req)) {
+    res.redirect(302, '/admin');
+    return;
+  }
   res.status(201).json({ code, target_url: targetUrl });
 });
 
 app.post('/admin/codes/:code', (req, res) => {
   const targetUrl = req.body && req.body.target_url;
   if (!targetUrl || !isValidHttpUrl(targetUrl)) {
+    if (isFormSubmission(req)) {
+      res.status(400).send('target_url mora biti validan http:// ili https:// URL');
+      return;
+    }
     res.status(400).json({ error: 'target_url mora biti validan http:// ili https:// URL' });
     return;
   }
   const existing = db.getByCode(req.params.code);
   if (!existing) {
+    if (isFormSubmission(req)) {
+      res.status(404).send('Kod ne postoji');
+      return;
+    }
     res.status(404).json({ error: 'Kod ne postoji' });
     return;
   }
   db.updateTargetUrl(req.params.code, targetUrl);
+  if (isFormSubmission(req)) {
+    res.redirect(302, '/admin');
+    return;
+  }
   res.json({ code: req.params.code, target_url: targetUrl });
 });
 
