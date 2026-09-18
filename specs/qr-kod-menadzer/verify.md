@@ -104,3 +104,37 @@ proizvodnom kodu; ispravljen i ponovo verifikovan.
 
 **T12 (tasks.md) → gotovo.** idea-to-project TEST faza takođe zadovoljena
 istim dokazom (isti kriterijumi, ista izvršena provera).
+
+## AC9 — javna `/health` ruta (REQ9, T13, dodato 18. sept 2026)
+
+Za razliku od AC1-AC8 (koje sam ja skriptovano/ručno verifikovao pa je to
+označeno kao poznati proceduralni propust u prethodnom pilotu — self-verifikacija
+umesto nezavisne), AC9 je prošao kroz PRAVI nezavisan Converge: svež `Agent`
+subagent, bez ikakvog uvida u ovaj razgovor ili moje rezonovanje, dobio je
+SAMO commit hash (`dafa87f`) i izolovan git worktree (`git worktree add`, ne
+deljen working directory), pa je sam pokrenuo pravi server proces i sam
+izvršio HTTP pozive.
+
+Nezavisni nalaz (PASS), sažeto — pun izveštaj agenta dostupan u sesiji:
+
+- `GET /health` bez ikakvog Authorization header-a → 200,
+  `{"status":"ok","codes_count":N}`.
+- Odgovor NE sadrži `target_url` ni `click_count` ni pre ni posle kreiranja
+  kodova i redirect klika (provereno grep-ovanjem sirovih bajtova odgovora,
+  ne pretpostavkom).
+- `codes_count` prati stvaran `SELECT COUNT(*) FROM codes` — unakrsno
+  proverio i preko `/health` i preko direktnog read-only SQLite upita nad
+  istim fajlom (0 → 2 → 3 po redosledu kreiranja); redirect klik (koji menja
+  `click_count` jednog reda) NIJE promenio `codes_count`, kako se i očekuje
+  (broj redova ≠ zbir klikova).
+- Redosled registracije ruta u `server.js` potvrđen čitanjem fajla: `/health`
+  je registrovana PRE konstruisanja/montiranja `adminAuth` middleware-a — auth
+  je strukturno nemoguć na toj ruti, ne slučajno izbegnut.
+- Regresija na postojeću auth granicu isključena: `GET /admin` bez auth i
+  dalje vraća 401 (AC7 i dalje važi).
+
+**Rezultat: AC9 PASS**, i to sa metodom verifikacije koja ispravlja gap
+identifikovan u prethodnom pilotu (self-verifikacija → nezavisna
+subagent-verifikacija), tačno kako je obećano.
+
+**T13 (tasks.md) → gotovo.**
