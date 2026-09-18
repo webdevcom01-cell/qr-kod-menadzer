@@ -60,8 +60,15 @@ app.get('/admin/codes/:code/qr.png', async (req, res) => {
     return;
   }
   const redirectUrl = `${req.protocol}://${req.get('host')}/r/${req.params.code}`;
-  const png = await QRCode.toBuffer(redirectUrl, { type: 'png' });
-  res.type('png').send(png);
+  // Explicit try/catch (Checker finding on Spawn C): don't rely on Express 5's
+  // automatic async-rejection forwarding alone -- fail loudly with a real 500
+  // instead of an unhandled state if QR generation ever throws.
+  try {
+    const png = await QRCode.toBuffer(redirectUrl, { type: 'png' });
+    res.type('png').send(png);
+  } catch (err) {
+    res.status(500).send('QR generisanje neuspešno');
+  }
 });
 
 // HTML <form> submissions (no JS/fetch, per spec) post as
