@@ -138,3 +138,19 @@ identifikovan u prethodnom pilotu (self-verifikacija → nezavisna
 subagent-verifikacija), tačno kako je obećano.
 
 **T13 (tasks.md) → gotovo.**
+
+### Živa produkciona potvrda (posle Buky-jevog `git push`, Railway auto-deploy)
+
+Commit `a2f8f87` je stigao na GitHub (Buky-jev pravi terminal, `git push`),
+Railway je auto-deploy-ovao (deployment `4108f5e4...`, status `SUCCESS`,
+`commitHash: a2f8f874a8ce4b11f768e57d6f418ab4038cd4bf`, potvrđeno preko
+Railway MCP `list-deployments`). Živa provera preko WebFetch-a protiv
+`https://qr-kod-menadzer-web-production.up.railway.app`:
+
+- `GET /health` → `{"status":"ok","codes_count":1}` (bez ikakvog auth header-a
+  poslatog od strane WebFetch-a — potvrđuje da je ruta stvarno javna i u
+  produkciji, ne samo lokalno).
+- `GET /r/nepostojeci1` → 404 (AC6 i dalje važi posle ovog deploy-a — nema
+  regresije).
+
+**AC9 potvrđen i uživo, na pravom produkcionom URL-u, ne samo lokalno.**
