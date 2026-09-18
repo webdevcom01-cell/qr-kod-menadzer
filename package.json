@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"nema automatizovanog test suite-a u v1 (plan.md Rizik 4) -- AC1-AC8 verifikovani skriptovano u CONVERGE fazi, vidi tasks.md T12\""
   },
   "keywords": [],
   "author": "",
