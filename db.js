@@ -22,6 +22,11 @@ function getByCode(code) {
   return stmt.get(code);
 }
 
+function getAllCodes() {
+  const stmt = db.prepare('SELECT * FROM codes ORDER BY created_at DESC');
+  return stmt.all();
+}
+
 function insertCode(code, targetUrl) {
   const stmt = db.prepare('INSERT INTO codes (code, target_url) VALUES (?, ?)');
   stmt.run(code, targetUrl);
@@ -40,6 +45,7 @@ function incrementClickAtomic(code) {
 module.exports = {
   db,
   getByCode,
+  getAllCodes,
   insertCode,
   updateTargetUrl,
   incrementClickAtomic,
