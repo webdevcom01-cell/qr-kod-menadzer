@@ -21,8 +21,14 @@ Constitution za ovaj repo (sdd-workflow, Constitution faza, 18. sept 2026, green
   `OJACAVANJE-stavka4-circuit-breaker-lock.md` u loops projektu).
 - Nema izmišljenih/placeholder podataka — svi podaci nastaju iz admin unosa ili stvarnog
   redirect saobraćaja.
-- `git add` / `git commit` / `git push` ka GitHub-u radi isključivo Buky, iz svog pravog
-  terminala — Claude ih ne pokreće ni iz cloud šela ni iz device-bridge šela.
+- **Finalni publish** (`git push` ka GitHub remote-u, i prvi bazni commit repoa koji ide
+  na Buky-jev Mac) radi isključivo Buky, iz svog pravog terminala — Claude ga ne pokreće
+  ni iz cloud šela ni iz device-bridge šela.
+- **LOKALNI commit-ovi unutar agentic-loop-engineer worktree-a** (Maker-ov osnovni
+  mehanizam — diff koji Checker verifikuje dolazi odatle) su OK i OČEKIVANI — to nije
+  isto što i "git push"/publish, ostaju lokalni, nikad ne diraju `main` ni GitHub.
+  Potvrđeno eksplicitno sa Bukyjem 18. sept 2026 pre prvog spawn-a. Maker NE sme da
+  odbije da commit-uje svoj sopstveni worktree rad pozivajući se na ovo pravilo.
 - Transfer git repoa (cloud sandbox → Mac) isključivo preko
   `agentic-loop-engineer`-ovog `scripts/portable-repo-transfer.sh` (git bundle), nikad
   tar/cp worktree direktorijuma.

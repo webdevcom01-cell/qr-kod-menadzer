@@ -5,3 +5,5 @@ data/*.db-*
 .env
 *.log
 .claude/
+.agent-orchestrator/
+pnpm-lock.yaml
