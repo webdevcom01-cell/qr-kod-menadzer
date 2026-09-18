@@ -56,6 +56,17 @@ vidi obrazloženje na dnu). Svaki task nosi dokaz (evidence) kad se štiklira.
   `data/` dir ispod već-žive server konekcije, uzrokujući lažni
   "readonly database" fail na AC1) — detalji u verify.md.
 
+## T13 — Javna `/health` ruta (REQ9/AC9, dodato 18. sept 2026)
+
+- [x] T13 — `GET /health` bez auth, van `/admin` middleware-a, vraća
+  `{"status":"ok","codes_count":N}` bez target URL-ova ili pojedinačnih
+  click_count-ova. (satisfies: AC9)
+  Evidence: implementatorov smoke-test (stvaran server, port 3999) —
+  `GET /health` bez Authorization header-a → 200, `{"status":"ok","codes_count":0}`
+  na praznoj bazi; posle 2 stvarna `POST /admin/codes` → `codes_count":2`.
+  Nezavisna Converge provera (svež subagent, van ovog konteksta) dokumentovana
+  u `verify.md` pod "AC9".
+
 ---
 
 ## Obrazloženje granularnosti (3 spawn-a, ne 12)

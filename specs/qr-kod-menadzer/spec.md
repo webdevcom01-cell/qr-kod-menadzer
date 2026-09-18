@@ -55,6 +55,14 @@ a odredišni URL iza nje admin menja bez dodira na sam kod, uz brojanje otvaranj
    zahtev bez nje se odbija (401/403), ne izvršava se nikakva izmena podataka.
 8. Podaci (zapisi kodova i brojači) prežive restart/redeploy procesa — baza
    nije samo u memoriji.
+9. Sistem izlaže javnu, potpuno neautentikovanu, read-only `GET /health` rutu
+   koja vraća osnovni status i broj postojećih zapisa (`codes_count`), bez
+   otkrivanja bilo kog target URL-a ili pojedinačnog `click_count`-a — svrha
+   je da automatizovana provera (ljudska ili agentska) može da potvrdi da je
+   servis živ i da baza radi, bez potrebe za admin kredencijalima. Dodato
+   18. sept 2026, posle prvog pilota, gde je nedostatak ovakve rute značio
+   da svaka naredna nezavisna verifikacija zahteva Bukyjevo ručno unošenje
+   admin lozinke (vidi `claude/PILOT-runda10-...md`, sekcija nalaza).
 
 ## 5. Acceptance Criteria
 
@@ -74,6 +82,10 @@ a odredišni URL iza nje admin menja bez dodira na sam kod, uz brojanje otvaranj
   autentikacijom prolazi.
 - AC8: Posle restarta/redeploy-a procesa, ranije kreirani zapisi i njihovi
   click_count-ovi su i dalje prisutni i tačni.
+- AC9: `GET /health` bez ikakve autentikacije (bez Authorization header-a)
+  vraća HTTP 200 sa JSON telom koje sadrži bar `status` i `codes_count`
+  (broj = COUNT(*) iz `codes` tabele u tom trenutku); odgovor NE sadrži
+  nijedan `target_url` niti nijedan pojedinačni `click_count`.
 
 ## 6. Out of scope for this change
 

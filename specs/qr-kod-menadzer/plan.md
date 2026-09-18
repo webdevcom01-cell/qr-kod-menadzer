@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS codes (
 | `/admin/codes` | POST | HTTP Basic Auth | Kreira novi zapis (validacija target URL-a, generiše kod sa retry na koliziju) |
 | `/admin/codes/:code` | POST | HTTP Basic Auth | Menja `target_url` postojećeg zapisa (kod se ne dira) |
 | `/admin/codes/:code/qr.png` | GET | HTTP Basic Auth | Generiše/vraća QR PNG koji enkodira `<trenutni-host>/r/<code>` (host se čita iz zahteva, ne iz hardkodovanog env var-a — izbegava chicken-and-egg problem sa još-nepoznatim Railway domenom pre prvog deploy-a) |
+| `/health` | GET | Nema (javno) | Vraća `{"status":"ok","codes_count":N}` — `N` = `SELECT COUNT(*) FROM codes`. Registrovana PRE `app.use('/admin', adminAuth)`, po istom obrascu kao `/r/:code`, da ostane nedvosmisleno van auth-a. Dodato 18. sept 2026 (REQ9/AC9) radi buduće nezavisne verifikacije bez admin kredencijala. |
 
 ## Env varijable
 

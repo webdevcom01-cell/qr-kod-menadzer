@@ -41,6 +41,15 @@ app.get('/r/:code', (req, res) => {
   res.redirect(302, record.target_url);
 });
 
+// Public, no-auth, read-only health check (REQ9/AC9). Registered before the
+// /admin auth middleware below, same pattern as /r/:code, so it stays
+// unambiguously outside auth. Deliberately exposes only a count, never a
+// target_url or a per-code click_count, so it can't be used to read out
+// operational data past a bare liveness signal.
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', codes_count: db.getCodeCount() });
+});
+
 const adminAuth = basicAuth({
   users: { [process.env.ADMIN_USER]: process.env.ADMIN_PASSWORD },
   challenge: true,

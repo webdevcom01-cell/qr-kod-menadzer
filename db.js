@@ -42,6 +42,11 @@ function incrementClickAtomic(code) {
   stmt.run(code);
 }
 
+function getCodeCount() {
+  const stmt = db.prepare('SELECT COUNT(*) AS count FROM codes');
+  return stmt.get().count;
+}
+
 module.exports = {
   db,
   getByCode,
@@ -49,4 +54,5 @@ module.exports = {
   insertCode,
   updateTargetUrl,
   incrementClickAtomic,
+  getCodeCount,
 };
