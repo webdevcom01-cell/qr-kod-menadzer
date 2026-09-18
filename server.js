@@ -11,6 +11,11 @@ if (!process.env.ADMIN_USER || !process.env.ADMIN_PASSWORD) {
 }
 
 function isValidHttpUrl(str) {
+  // Found by independent Checker review of Spawn B: new URL() stringifies
+  // non-string input (e.g. a one-element array survives String() coercion),
+  // so a JSON body with target_url as an array could slip past this check
+  // and fail deeper in db.js instead of returning a clean 400 here.
+  if (typeof str !== 'string') return false;
   let parsed;
   try {
     parsed = new URL(str);
